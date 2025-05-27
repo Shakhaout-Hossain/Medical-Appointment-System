@@ -10,7 +10,7 @@ import lombok.Data;
 import java.time.LocalDate;
 
 @Data
-public class RegisterRequest {
+public class RegisterRequestDto {
     @NotBlank(message = "Username must not be blank")
     @Size(min = 4, max = 50)
     private String userName;

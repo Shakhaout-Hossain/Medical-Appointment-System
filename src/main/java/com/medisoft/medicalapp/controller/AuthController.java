@@ -1,12 +1,12 @@
 package com.medisoft.medicalapp.controller;
 
 
-import com.medisoft.medicalapp.dto.RegisterRequest;
+import com.medisoft.medicalapp.dto.LoginRequestDto;
+import com.medisoft.medicalapp.dto.RegisterRequestDto;
 import com.medisoft.medicalapp.entity.User;
 import com.medisoft.medicalapp.service.UserService;
 import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,18 +14,27 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/auth")
 public class AuthController {
 
-    private UserService userService;
 
-    @PostMapping("/register")
-    public ResponseEntity<?>  registerUser(@Valid @RequestBody RegisterRequest registerRequest){
-        User saved = userService.registerNewUser(registerRequest);
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body("{\\\"message\\\":\\\"User registered successfully\\\",\\\"userId\\\":\" + saved.getId() + \"}");
+    private final UserService userService;
+
+    public AuthController(UserService userService) {
+        this.userService = userService;
     }
-//    public String register(@RequestBody User user){
-//        return user.getFullName();
-//    }
+
+
+    // Register a new user
+    @PostMapping("/register")
+    public ResponseEntity<User> registerUser(@Valid @RequestBody RegisterRequestDto registerRequestDto) {
+        User registeredUser = userService.registerNewUser(registerRequestDto);
+        return ResponseEntity.ok(registeredUser);
+    }
+
+    // Authenticate and log in a user
+    @PostMapping("/login")
+    public ResponseEntity<User> loginUser(@Valid @RequestBody LoginRequestDto loginRequestDto) {
+        User authenticatedUser = userService.loginUser(loginRequestDto);
+        return ResponseEntity.ok(authenticatedUser);
+    }
 
     @GetMapping
     public String Test(){
