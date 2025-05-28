@@ -1,5 +1,6 @@
 package com.medisoft.medicalapp.dto;
 
+import com.medisoft.medicalapp.enums.Gender;
 import com.medisoft.medicalapp.enums.Role;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -7,7 +8,10 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.Set;
 
 @Data
 public class RegisterRequestDto {
@@ -30,14 +34,22 @@ public class RegisterRequestDto {
     @NotNull
     private Role role;
 
+    @NotNull
+    private Gender gender;
+
     // Patient-specific fields
     private LocalDate dateOfBirth;
-    private String gender;
     private String address;
+    private String description;
 
     // Doctor-specific fields
     private String specialty;
     private String qualification;
     private String bio;
+    // ⏰ Doctor's working hours
+    private LocalTime availableFrom;
+    private LocalTime availableTo;
+    // 📅 Doctor's working days
+    private Set<DayOfWeek> workingDays;
 }
 

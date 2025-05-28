@@ -5,6 +5,7 @@ import com.medisoft.medicalapp.dto.LoginRequestDto;
 import com.medisoft.medicalapp.dto.RegisterRequestDto;
 import com.medisoft.medicalapp.entity.User;
 import com.medisoft.medicalapp.service.UserService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
+@Tag(name = "Auth Controller", description = "Endpoints for Auth operations")
 public class AuthController {
 
 

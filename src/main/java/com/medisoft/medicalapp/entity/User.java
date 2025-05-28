@@ -1,5 +1,6 @@
 package com.medisoft.medicalapp.entity;
 
+import com.medisoft.medicalapp.enums.Gender;
 import com.medisoft.medicalapp.enums.Role;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -17,7 +18,13 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "users")
+@Table(
+        name = "users",
+        indexes = {
+                @Index(name = "idx_users_username", columnList = "userName"),
+                @Index(name = "idx_users_email", columnList = "email")
+        }
+)
 public  class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,10 +35,15 @@ public  class User implements UserDetails {
 
     private String password;
     private String fullName;
+
+    @Column(unique = true, nullable = false)
     private String email;
 
     @Enumerated(EnumType.STRING)
     private Role role;
+
+    @Enumerated(EnumType.STRING)
+    private Gender gender;
 
     private boolean enabled = true;
 

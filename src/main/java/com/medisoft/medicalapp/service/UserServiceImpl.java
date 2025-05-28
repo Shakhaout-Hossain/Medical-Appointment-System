@@ -51,11 +51,13 @@ public class UserServiceImpl implements UserService{
             throw new IllegalArgumentException("Email already in use");
         }
         User user = new User();
-        user.setUserName(dto.getUserName());
+        user.setUserName(dto.getUserName().toLowerCase());
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
         user.setFullName(dto.getFullName());
-        user.setEmail(dto.getEmail());
+        user.setEmail(dto.getEmail().toLowerCase());
         user.setRole(dto.getRole());
+        user.setGender(dto.getGender());
+
         if(dto.getRole() == Role.DOCTOR){
             user.setEnabled(false);
         }
@@ -64,23 +66,36 @@ public class UserServiceImpl implements UserService{
         user = userRepository.save(user);
 
         if(dto.getRole() == Role.DOCTOR){
-            DoctorProfile doctorProfile = new DoctorProfile();
-            doctorProfile.setUser(user);
-            doctorProfile.setSpecialty(dto.getSpecialty());
-            doctorProfile.setQualification(dto.getQualification());
-            doctorProfile.setBio(dto.getBio());
-            doctorProfile.setApproved(false);
+            DoctorProfile doctorProfile = getDoctorProfile(dto, user);
             doctorProfileRepository.save(doctorProfile);
         }
         else if(dto.getRole() == Role.PATIENT){
-            PatientProfile patientProfile = new PatientProfile();
-            patientProfile.setUser(user);
-            patientProfile.setGender(dto.getGender());
-            patientProfile.setAddress(dto.getAddress());
-            patientProfile.setDateOfBirth(dto.getDateOfBirth());
+            PatientProfile patientProfile = getPatientProfile(dto, user);
             patientProfileRepository.save(patientProfile);
         }
 
         return user;
+    }
+
+    private static DoctorProfile getDoctorProfile(RegisterRequestDto dto, User user) {
+        DoctorProfile doctorProfile = new DoctorProfile();
+        doctorProfile.setUser(user);
+        doctorProfile.setSpecialty(dto.getSpecialty());
+        doctorProfile.setQualification(dto.getQualification());
+        doctorProfile.setBio(dto.getBio());
+        doctorProfile.setApproved(false);
+        doctorProfile.setAvailableFrom(dto.getAvailableFrom());
+        doctorProfile.setAvailableTo(dto.getAvailableTo());
+        doctorProfile.setWorkingDays(dto.getWorkingDays());
+        return doctorProfile;
+    }
+
+    private static PatientProfile getPatientProfile(RegisterRequestDto dto, User user){
+        PatientProfile patientProfile = new PatientProfile();
+        patientProfile.setUser(user);
+        patientProfile.setAddress(dto.getAddress());
+        patientProfile.setDateOfBirth(dto.getDateOfBirth());
+        patientProfile.setDescription(dto.getDescription());
+        return patientProfile;
     }
 }

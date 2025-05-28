@@ -5,6 +5,12 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.DayOfWeek;
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
 @Entity
 @Data
 @NoArgsConstructor
@@ -23,7 +29,18 @@ public class DoctorProfile {
     private String bio;
     private boolean approved = false;
 
-    // Availability, etc., can be added later
+    // ⏰ Available working hours
+    private LocalTime availableFrom;
+    private LocalTime availableTo;
 
+    // 📅 Working days (e.g., MONDAY to FRIDAY)
+    @ElementCollection(targetClass = DayOfWeek.class)
+    @Enumerated(EnumType.STRING)
+    @CollectionTable(name = "doctor_working_days", joinColumns = @JoinColumn(name = "doctor_id"))
+    @Column(name = "day_of_week")
+    private Set<DayOfWeek> workingDays;
+
+    @OneToMany(mappedBy = "doctor", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Appointment> appointments = new ArrayList<>();
     // Constructors, getters, setters
 }
