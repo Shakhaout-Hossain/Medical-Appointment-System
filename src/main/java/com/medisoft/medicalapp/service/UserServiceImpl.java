@@ -17,6 +17,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 public class UserServiceImpl implements UserService{
     @Autowired
@@ -65,6 +68,7 @@ public class UserServiceImpl implements UserService{
         // Save user first to generate ID
         user = userRepository.save(user);
 
+
         if(dto.getRole() == Role.DOCTOR){
             DoctorProfile doctorProfile = getDoctorProfile(dto, user);
             doctorProfileRepository.save(doctorProfile);
@@ -75,6 +79,14 @@ public class UserServiceImpl implements UserService{
         }
 
         return user;
+    }
+
+    @Override
+    @Transactional
+    public List<User> registerMultipleUsers(List<RegisterRequestDto> userDtos) {
+        return userDtos.stream()
+                .map(this::registerNewUser)
+                .collect(Collectors.toList());
     }
 
     private static DoctorProfile getDoctorProfile(RegisterRequestDto dto, User user) {

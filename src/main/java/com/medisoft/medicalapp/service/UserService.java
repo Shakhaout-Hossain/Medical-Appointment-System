@@ -7,7 +7,11 @@ import com.medisoft.medicalapp.exception.AccountNotApprovedException;
 import com.medisoft.medicalapp.exception.InvalidCredentialsException;
 import com.medisoft.medicalapp.exception.UserNotFoundException;
 
+import java.util.List;
+
 public interface UserService {
     User loginUser(LoginRequestDto dto) throws UserNotFoundException, InvalidCredentialsException, AccountNotApprovedException;
     User registerNewUser(RegisterRequestDto dto);
+    List<User> registerMultipleUsers(List<RegisterRequestDto> userDtos);
 }
+
