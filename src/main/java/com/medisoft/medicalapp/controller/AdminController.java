@@ -1,6 +1,7 @@
 package com.medisoft.medicalapp.controller;
 
 import com.medisoft.medicalapp.entity.DoctorProfile;
+import com.medisoft.medicalapp.entity.PatientProfile;
 import com.medisoft.medicalapp.entity.User;
 import com.medisoft.medicalapp.exception.UserNotFoundException;
 import com.medisoft.medicalapp.repository.DoctorProfileRepository;
@@ -14,6 +15,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -78,13 +81,22 @@ public class AdminController {
     //List all doctors:
     @GetMapping("/doctors")
     public ResponseEntity<?> getAllDoctors() {
-        return ResponseEntity.ok(doctorProfileRepository.findAll());
+        List<DoctorProfile> doctorProfiles = doctorProfileRepository.findAll();
+        if (doctorProfiles.isEmpty()) {
+            throw new  UserNotFoundException("No doctors found");
+        }
+        return ResponseEntity.ok(doctorProfiles);
     }
 
     //List all patients:
     @GetMapping("/patients")
     public ResponseEntity<?> getAllPatients() {
-        return ResponseEntity.ok(patientProfileRepository.findAll());
+        List<PatientProfile> patientProfiles = patientProfileRepository.findAll();
+        if (patientProfiles.isEmpty()) {
+
+            throw new UserNotFoundException("No patients found");
+        }
+        return ResponseEntity.ok(patientProfiles);
     }
 
     @GetMapping("/doctors/approved")
