@@ -1,5 +1,6 @@
 package com.medisoft.medicalapp.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.medisoft.medicalapp.enums.Gender;
 import com.medisoft.medicalapp.enums.Role;
 import jakarta.validation.constraints.Email;
@@ -46,9 +47,13 @@ public class RegisterRequestDto {
     private String specialty;
     private String qualification;
     private String bio;
+
     // ⏰ Doctor's working hours
+    @JsonFormat(pattern = "h:mm a")
     private LocalTime availableFrom;
+    @JsonFormat(pattern = "h:mm a")
     private LocalTime availableTo;
+
     // 📅 Doctor's working days
     private Set<DayOfWeek> workingDays;
 }

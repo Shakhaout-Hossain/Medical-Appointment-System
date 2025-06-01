@@ -26,6 +26,8 @@ public class DoctorProfile {
 
     private String specialty;
     private String qualification;
+
+    @Column(length = 1000)
     private String bio;
     private boolean approved = false;
 

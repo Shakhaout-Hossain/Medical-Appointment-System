@@ -10,13 +10,18 @@ import com.medisoft.medicalapp.repository.UserRepository;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -80,12 +85,21 @@ public class AdminController {
 
     //List all doctors:
     @GetMapping("/doctors")
-    public ResponseEntity<?> getAllDoctors() {
-        List<DoctorProfile> doctorProfiles = doctorProfileRepository.findAll();
-        if (doctorProfiles.isEmpty()) {
+    public ResponseEntity<?> getAllDoctors(@RequestParam(defaultValue = "0") int page,
+                                           @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<DoctorProfile> doctorPage = doctorProfileRepository.findAll(pageable);
+        if (doctorPage.isEmpty()) {
             throw new  UserNotFoundException("No doctors found");
         }
-        return ResponseEntity.ok(doctorProfiles);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("doctors", doctorPage.getContent());
+        response.put("currentPage", doctorPage.getNumber());
+        response.put("totalItems", doctorPage.getTotalElements());
+        response.put("totalPages", doctorPage.getTotalPages());
+
+        return ResponseEntity.ok(response);
     }
 
     //List all patients:
