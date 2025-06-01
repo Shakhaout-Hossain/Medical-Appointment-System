@@ -39,6 +39,8 @@ public class RegisterRequestDto {
     private Gender gender;
 
     // Patient-specific fields
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "d/M/yyyy")
     private LocalDate dateOfBirth;
     private String address;
     private String description;
@@ -46,6 +48,7 @@ public class RegisterRequestDto {
     // Doctor-specific fields
     private String specialty;
     private String qualification;
+    @Size(max = 1000)
     private String bio;
 
     // ⏰ Doctor's working hours
@@ -57,4 +60,3 @@ public class RegisterRequestDto {
     // 📅 Doctor's working days
     private Set<DayOfWeek> workingDays;
 }
-

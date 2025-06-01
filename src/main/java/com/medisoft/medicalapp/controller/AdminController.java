@@ -95,7 +95,7 @@ public class AdminController {
 
         Map<String, Object> response = new HashMap<>();
         response.put("doctors", doctorPage.getContent());
-        response.put("currentPage", doctorPage.getNumber());
+        response.put("currentPage", doctorPage.getNumber()+1);
         response.put("totalItems", doctorPage.getTotalElements());
         response.put("totalPages", doctorPage.getTotalPages());
 
@@ -104,13 +104,21 @@ public class AdminController {
 
     //List all patients:
     @GetMapping("/patients")
-    public ResponseEntity<?> getAllPatients() {
-        List<PatientProfile> patientProfiles = patientProfileRepository.findAll();
-        if (patientProfiles.isEmpty()) {
+    public ResponseEntity<?> getAllPatients(@RequestParam(defaultValue = "0") int page,
+                                            @RequestParam(defaultValue = "100") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<PatientProfile> patientProfilesPage = patientProfileRepository.findAll(pageable);
+        if (patientProfilesPage.isEmpty()) {
 
             throw new UserNotFoundException("No patients found");
         }
-        return ResponseEntity.ok(patientProfiles);
+        Map<String, Object> response = new HashMap<>();
+        response.put("patients", patientProfilesPage.getContent());
+        response.put("currentPage", patientProfilesPage.getNumber()+1);
+        response.put("totalItems", patientProfilesPage.getTotalElements());
+        response.put("totalPages", patientProfilesPage.getTotalPages());
+
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/doctors/approved")
