@@ -1,5 +1,6 @@
 package com.medisoft.medicalapp.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -42,7 +43,9 @@ public class DoctorProfile {
     @Column(name = "day_of_week")
     private Set<DayOfWeek> workingDays;
 
+
     @OneToMany(mappedBy = "doctor", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<Appointment> appointments = new ArrayList<>();
     // Constructors, getters, setters
 }
