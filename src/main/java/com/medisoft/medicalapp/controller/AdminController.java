@@ -39,6 +39,8 @@ public class AdminController {
     @Autowired
     private UserRepository userRepository;
 
+
+    /// Approve Doctor By userName
     @PutMapping("/approve-doctor/{userName}")
     @Transactional
     public ResponseEntity<String> approveDoctor(@PathVariable String userName) {
@@ -58,6 +60,35 @@ public class AdminController {
 
         return ResponseEntity.ok("Doctor approved successfully.");
     }
+
+    /// Approve All UnApproved Doctors
+    @PutMapping("/approve-all-doctors")
+    @Transactional
+    public ResponseEntity<?> approveAllUnapprovedDoctors() {
+        List<DoctorProfile> unapprovedDoctors = doctorProfileRepository.findByApproved(false);
+
+        if (unapprovedDoctors.isEmpty()) {
+            return ResponseEntity.ok("No unapproved doctors found.");
+        }
+
+        for (DoctorProfile doctor : unapprovedDoctors) {
+            doctor.setApproved(true);
+
+            User user = doctor.getUser();
+            if (user != null) {
+                user.setEnabled(true);
+                userRepository.save(user);
+            }
+            else {
+                throw new UsernameNotFoundException("User Not Available");
+            }
+
+            doctorProfileRepository.save(doctor);
+        }
+
+        return ResponseEntity.ok(unapprovedDoctors.size() + " doctors approved successfully.");
+    }
+
 
     @DeleteMapping("/remove-doctor/{userName}")
     @Transactional
