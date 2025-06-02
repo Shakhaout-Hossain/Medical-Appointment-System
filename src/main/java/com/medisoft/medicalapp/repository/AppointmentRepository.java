@@ -3,6 +3,8 @@ package com.medisoft.medicalapp.repository;
 import com.medisoft.medicalapp.entity.Appointment;
 import com.medisoft.medicalapp.entity.DoctorProfile;
 import com.medisoft.medicalapp.entity.PatientProfile;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -11,6 +13,14 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface AppointmentRepository extends JpaRepository<Appointment, Long> {
+    Page<Appointment> findByPatientUserUserNameAndAppointmentTimeAfter(String userName, LocalDateTime time, Pageable pageable);
+    Page<Appointment> findByPatientUserUserNameAndAppointmentTimeBefore(String userName, LocalDateTime time, Pageable pageable);
+    Page<Appointment> findByPatientUserUserNameAndDoctorId(String userName, Long doctorId, Pageable pageable);
+
+    Page<Appointment> findByPatientUserUserName(String username, Pageable pageable);
+
+
+
     List<Appointment> findByPatient(PatientProfile patient);
     List<Appointment> findByDoctor(DoctorProfile doctor);
 

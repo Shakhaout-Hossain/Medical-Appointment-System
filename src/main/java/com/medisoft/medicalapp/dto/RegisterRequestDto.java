@@ -17,7 +17,7 @@ import java.util.Set;
 @Data
 public class RegisterRequestDto {
     @NotBlank(message = "Username must not be blank")
-    @Size(min = 4, max = 50)
+    @Size(min = 4, max = 50, message = "UserName must have minimum 4 and maximum 50 characters")
     private String userName;
 
     @NotBlank
@@ -29,13 +29,13 @@ public class RegisterRequestDto {
 
     @Email
     @NotBlank
-    @Size(max = 100)
+    @Size(max = 100, message = "Email must be at maximum 100 characters")
     private String email;
 
-    @NotNull
+    @NotNull(message = "Role type must not be blank")
     private Role role;
 
-    @NotNull
+    @NotNull(message = "Gender must not be blank")
     private Gender gender;
 
     // Patient-specific fields
@@ -48,7 +48,7 @@ public class RegisterRequestDto {
     // Doctor-specific fields
     private String specialty;
     private String qualification;
-    @Size(max = 1000)
+    @Size(max = 1000, message = "Bio must be at maximum 1000 characters")
     private String bio;
 
     // ⏰ Doctor's working hours
