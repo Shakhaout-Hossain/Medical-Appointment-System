@@ -19,13 +19,18 @@ public class PaymentSchedulerService {
 
     @Scheduled(fixedRate = 60000) // every 60 seconds
     public void checkPendingPayments() {
-        List<Appointment> pendingAppointments =
-                appointmentRepository.findByStatus(AppointmentStatus.PENDING);
+        List<Appointment> pendingAppointments = appointmentRepository.findByStatus(AppointmentStatus.PENDING);
 
         for (Appointment appointment : pendingAppointments) {
-            if (paymentService.isPaymentSuccessful(appointment.getId())) {
-                appointment.setStatus(AppointmentStatus.CONFIRMED);
-                appointmentRepository.save(appointment);
+            try {
+                if (paymentService.isPaymentSuccessful(appointment.getId())) {
+                    appointment.setStatus(AppointmentStatus.CONFIRMED);
+                    appointmentRepository.save(appointment);
+                }
+            } catch (Exception e) {
+                // Log error, but continue with other appointments
+                System.err.println("Failed to verify payment for appointment ID: " + appointment.getId());
+                e.printStackTrace(); // or use a Logger
             }
         }
     }
