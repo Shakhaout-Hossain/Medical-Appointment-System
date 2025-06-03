@@ -1,6 +1,7 @@
 package com.medisoft.medicalapp.entity;
 
 import com.medisoft.medicalapp.enums.AppointmentStatus;
+import com.medisoft.medicalapp.enums.PaymentStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -32,5 +33,7 @@ public class Appointment {
     private AppointmentStatus status;
 
     private String notes;
-}
 
+    @Enumerated(EnumType.STRING)
+    private PaymentStatus paymentStatus = PaymentStatus.PENDING;
+}

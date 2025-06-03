@@ -111,4 +111,15 @@ public class AppointmentServiceImpl implements AppointmentService{
             throw new AccessDeniedException("Only patients can create appointments.");
         }
     }
+
+//    public void confirmAppointmentIfPaid(Long appointmentId) {
+//        Appointment appointment = appointmentRepository.findById(appointmentId)
+//                .orElseThrow(() -> new RuntimeException("Appointment not found"));
+//
+//        if (appointment.getStatus() == AppointmentStatus.PENDING) {
+//            appointment.setStatus(AppointmentStatus.CONFIRMED);
+//            appointment.setPaymentStatus(PaymentStatus.SUCCESS);
+//            appointmentRepository.save(appointment);
+//        }
+//    }
 }
