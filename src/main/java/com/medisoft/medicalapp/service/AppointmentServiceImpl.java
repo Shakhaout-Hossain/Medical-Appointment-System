@@ -6,6 +6,7 @@ import com.medisoft.medicalapp.entity.DoctorProfile;
 import com.medisoft.medicalapp.entity.PatientProfile;
 import com.medisoft.medicalapp.entity.User;
 import com.medisoft.medicalapp.enums.AppointmentStatus;
+import com.medisoft.medicalapp.enums.PaymentStatus;
 import com.medisoft.medicalapp.enums.Role;
 import com.medisoft.medicalapp.exception.InvalidCredentialsException;
 import com.medisoft.medicalapp.exception.UserNotFoundException;
@@ -75,6 +76,7 @@ public class AppointmentServiceImpl implements AppointmentService{
                 .appointmentTime(dto.getAppointmentTime())
                 .status(AppointmentStatus.PENDING)
                 .notes(dto.getNotes())
+                .paymentStatus(PaymentStatus.PENDING)
                 .build();
         return appointmentRepository.save(appointment);
     }
@@ -101,7 +103,7 @@ public class AppointmentServiceImpl implements AppointmentService{
             throw new IllegalArgumentException("Doctor's working hours are not defined.");
         }
         if (localTime.isBefore(doctorProfile.getAvailableFrom())||localTime.isAfter(doctorProfile.getAvailableTo())){
-            throw new InvalidCredentialsException("Doctor is not available at this time.");
+            throw new InvalidCredentialsException("Doctor is not available at this time.\n"+ "Try " + doctorProfile.getAvailableFrom() + " To "+ doctorProfile.getAvailableTo() + " time Interval.");
         }
     }
 

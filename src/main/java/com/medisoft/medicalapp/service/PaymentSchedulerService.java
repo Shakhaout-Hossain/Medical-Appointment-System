@@ -2,6 +2,7 @@ package com.medisoft.medicalapp.service;
 
 import com.medisoft.medicalapp.entity.Appointment;
 import com.medisoft.medicalapp.enums.AppointmentStatus;
+import com.medisoft.medicalapp.enums.PaymentStatus;
 import com.medisoft.medicalapp.repository.AppointmentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -24,6 +25,8 @@ public class PaymentSchedulerService {
         for (Appointment appointment : pendingAppointments) {
             try {
                 if (paymentService.isPaymentSuccessful(appointment.getId())) {
+                    //System.out.println("\n\n"+appointment.getPaymentStatus()+"\n\n");
+                    appointment.setPaymentStatus(PaymentStatus.SUCCESS);
                     appointment.setStatus(AppointmentStatus.CONFIRMED);
                     appointmentRepository.save(appointment);
                 }

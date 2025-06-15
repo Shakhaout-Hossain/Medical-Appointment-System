@@ -35,5 +35,5 @@ public class Appointment {
     private String notes;
 
     @Enumerated(EnumType.STRING)
-    private PaymentStatus paymentStatus = PaymentStatus.PENDING;
+    private PaymentStatus paymentStatus;
 }
