@@ -18,7 +18,7 @@ public class PaymentSchedulerService {
     @Autowired
     private PaymentService paymentService;
 
-    @Scheduled(fixedRate = 60000) // every 60 seconds
+    @Scheduled(fixedRate = 600000) // every 60 seconds
     public void checkPendingPayments() {
         List<Appointment> pendingAppointments = appointmentRepository.findByStatus(AppointmentStatus.PENDING);
 
