@@ -50,8 +50,12 @@ public class AppointmentServiceImpl implements AppointmentService{
 
         PatientProfile patientProfile = patientProfileRepository.findByUser_UserName(username)
                 .orElseThrow(()-> new UserNotFoundException("Patient profile not found"));
-        DoctorProfile doctorProfile = doctorProfileRepository.findById(dto.getDoctorId())
-                .orElseThrow(()->new UserNotFoundException("Doctor not found"));
+//        DoctorProfile doctorProfile = doctorProfileRepository.findById(dto.getDoctorId())
+//                .orElseThrow(()->new UserNotFoundException("Doctor not found"));
+
+        DoctorProfile doctorProfile = doctorProfileRepository.findByIdAndApprovedTrue(dto.getDoctorId())
+                .orElseThrow(() -> new UserNotFoundException("Doctor not found or not approved"));
+
 
         // Validate appointment time (must be in the future and start at a 15-minute interval)
         validateAppointmentTime(dto.getAppointmentTime());
