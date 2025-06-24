@@ -7,6 +7,7 @@ import com.medisoft.medicalapp.exception.UserNotFoundException;
 import com.medisoft.medicalapp.repository.DoctorProfileRepository;
 import com.medisoft.medicalapp.repository.PatientProfileRepository;
 import com.medisoft.medicalapp.repository.UserRepository;
+import com.medisoft.medicalapp.service.EmailService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +40,9 @@ public class AdminController {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private EmailService emailService;
+
 
     /// Approve Doctor By userName
     @PutMapping("/approve-doctor/{userName}")
@@ -57,6 +61,9 @@ public class AdminController {
         User user = doctorProfile.getUser();
         user.setEnabled(true);
         userRepository.save(user);
+
+        /// Send Welcome Mail
+        emailService.sendWelcomeEmail(user.getEmail(),user.getFullName());
 
         return ResponseEntity.ok("Doctor approved successfully.");
     }

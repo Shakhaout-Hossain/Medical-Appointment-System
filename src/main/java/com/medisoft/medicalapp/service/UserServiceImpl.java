@@ -31,6 +31,9 @@ public class UserServiceImpl implements UserService{
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private EmailService emailService;
+
     @Override
     public User loginUser(LoginRequestDto dto) {
         User user = userRepository.findByUserName(dto.getUserName())
@@ -76,6 +79,9 @@ public class UserServiceImpl implements UserService{
         else if(dto.getRole() == Role.PATIENT){
             PatientProfile patientProfile = getPatientProfile(dto, user);
             patientProfileRepository.save(patientProfile);
+            emailService.sendWelcomeEmail(dto.getEmail(), dto.getFullName());
+        } else if (dto.getRole() == Role.ADMIN) {
+            emailService.sendWelcomeEmail(dto.getEmail(), dto.getFullName());
         }
 
         return user;
