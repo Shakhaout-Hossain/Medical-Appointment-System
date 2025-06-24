@@ -13,18 +13,26 @@ public class EmailService {
     @Autowired
     private JavaMailSender javaMailSender;
 
-    public void sendWelcomeEmail(String toEmail, String username) {
+    public void sendWelcomeEmail(String toEmail, String fullName) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setTo(toEmail);
             message.setSubject("Welcome to MediConnect – Medical Appointment System");
-            message.setText("Hello " + username + ",\n\nThank you for registering. We're excited to have you on board!");
-            message.setFrom("your_email@gmail.com");
-
+            message.setText("Hello " + fullName + ",\n\nThank you for registering. We're excited to have you on board!");
+            message.setFrom("shakhaouthossainrimon@gmail.com");
             javaMailSender.send(message);
         } catch (Exception e) {
             log.error("Exception While Send Email. ", e);
         }
 
+    }
+
+    public void sendReminderEmail(String toEmail, String subject, String body) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom("shakhaouthossainrimon@gmail.com");
+        message.setTo(toEmail);
+        message.setSubject(subject);
+        message.setText(body);
+        javaMailSender.send(message);
     }
 }
