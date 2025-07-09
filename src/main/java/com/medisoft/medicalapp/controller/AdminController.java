@@ -91,6 +91,8 @@ public class AdminController {
             }
 
             doctorProfileRepository.save(doctor);
+            /// Send Welcome Mail
+            emailService.sendWelcomeEmail(user.getEmail(),user.getFullName());
         }
 
         return ResponseEntity.ok(unapprovedDoctors.size() + " doctors approved successfully.");
