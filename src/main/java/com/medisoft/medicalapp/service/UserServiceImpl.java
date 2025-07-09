@@ -12,6 +12,7 @@ import com.medisoft.medicalapp.exception.UserNotFoundException;
 import com.medisoft.medicalapp.repository.DoctorProfileRepository;
 import com.medisoft.medicalapp.repository.PatientProfileRepository;
 import com.medisoft.medicalapp.repository.UserRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class UserServiceImpl implements UserService{
     @Autowired
@@ -79,9 +81,19 @@ public class UserServiceImpl implements UserService{
         else if(dto.getRole() == Role.PATIENT){
             PatientProfile patientProfile = getPatientProfile(dto, user);
             patientProfileRepository.save(patientProfile);
-            emailService.sendWelcomeEmail(dto.getEmail(), dto.getFullName());
+            try {
+                emailService.sendWelcomeEmail(dto.getEmail(), dto.getFullName());
+            } catch (Exception e) {
+                // Log the error but don't prevent user creation
+                log.error("Failed to send welcome email to admin: {}", dto.getEmail(), e);
+            }
         } else if (dto.getRole() == Role.ADMIN) {
-            emailService.sendWelcomeEmail(dto.getEmail(), dto.getFullName());
+            try {
+                emailService.sendWelcomeEmail(dto.getEmail(), dto.getFullName());
+            } catch (Exception e) {
+                // Log the error but don't prevent user creation
+                log.error("Failed to send welcome email to admin: {}", dto.getEmail(), e);
+            }
         }
 
         return user;

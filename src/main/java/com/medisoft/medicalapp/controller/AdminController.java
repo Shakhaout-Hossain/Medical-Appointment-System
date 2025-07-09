@@ -10,6 +10,7 @@ import com.medisoft.medicalapp.repository.UserRepository;
 import com.medisoft.medicalapp.service.EmailService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -29,6 +30,7 @@ import java.util.Map;
 @Tag(name = "Admin Controller", description = "Endpoints for admin operations")
 @PreAuthorize("hasRole('ADMIN')")
 @SecurityRequirement(name = "basicAuth")
+@Slf4j
 public class AdminController {
 
     @Autowired
@@ -63,8 +65,12 @@ public class AdminController {
         userRepository.save(user);
 
         /// Send Welcome Mail
-        emailService.sendWelcomeEmail(user.getEmail(),user.getFullName());
-
+        try {
+            emailService.sendWelcomeEmail(user.getEmail(), user.getFullName());
+        } catch (Exception e) {
+            // Log the error but don't prevent user creation
+            log.error("Failed to send welcome email to admin: {}", user.getEmail(), e);
+        }
         return ResponseEntity.ok("Doctor approved successfully.");
     }
 
@@ -92,7 +98,12 @@ public class AdminController {
 
             doctorProfileRepository.save(doctor);
             /// Send Welcome Mail
-            emailService.sendWelcomeEmail(user.getEmail(),user.getFullName());
+            try {
+                emailService.sendWelcomeEmail(user.getEmail(), user.getFullName());
+            } catch (Exception e) {
+                // Log the error but don't prevent user creation
+                log.error("Failed to send welcome email to admin: {}", user.getEmail(), e);
+            }
         }
 
         return ResponseEntity.ok(unapprovedDoctors.size() + " doctors approved successfully.");
