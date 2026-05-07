@@ -81,19 +81,19 @@ public class UserServiceImpl implements UserService{
         else if(dto.getRole() == Role.PATIENT){
             PatientProfile patientProfile = getPatientProfile(dto, user);
             patientProfileRepository.save(patientProfile);
-            try {
-                emailService.sendWelcomeEmail(dto.getEmail(), dto.getFullName());
-            } catch (Exception e) {
-                // Log the error but don't prevent user creation
-                log.error("Failed to send welcome email to admin: {}", dto.getEmail(), e);
-            }
+//            try {
+//                emailService.sendWelcomeEmail(dto.getEmail(), dto.getFullName());
+//            } catch (Exception e) {
+//                // Log the error but don't prevent user creation
+//                log.error("Failed to send welcome email to admin: {}", dto.getEmail(), e);
+//            }
         } else if (dto.getRole() == Role.ADMIN) {
-            try {
-                emailService.sendWelcomeEmail(dto.getEmail(), dto.getFullName());
-            } catch (Exception e) {
-                // Log the error but don't prevent user creation
-                log.error("Failed to send welcome email to admin: {}", dto.getEmail(), e);
-            }
+//            try {
+//                emailService.sendWelcomeEmail(dto.getEmail(), dto.getFullName());
+//            } catch (Exception e) {
+//                // Log the error but don't prevent user creation
+//                log.error("Failed to send welcome email to admin: {}", dto.getEmail(), e);
+//            }
         }
 
         return user;

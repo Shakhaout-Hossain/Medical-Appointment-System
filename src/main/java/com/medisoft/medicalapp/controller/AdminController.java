@@ -65,12 +65,12 @@ public class AdminController {
         userRepository.save(user);
 
         /// Send Welcome Mail
-        try {
-            emailService.sendWelcomeEmail(user.getEmail(), user.getFullName());
-        } catch (Exception e) {
-            // Log the error but don't prevent user creation
-            log.error("Failed to send welcome email to admin: {}", user.getEmail(), e);
-        }
+//        try {
+//            emailService.sendWelcomeEmail(user.getEmail(), user.getFullName());
+//        } catch (Exception e) {
+//            // Log the error but don't prevent user creation
+//            log.error("Failed to send welcome email to admin: {}", user.getEmail(), e);
+//        }
         return ResponseEntity.ok("Doctor approved successfully.");
     }
 
@@ -98,12 +98,12 @@ public class AdminController {
 
             doctorProfileRepository.save(doctor);
             /// Send Welcome Mail
-            try {
-                emailService.sendWelcomeEmail(user.getEmail(), user.getFullName());
-            } catch (Exception e) {
-                // Log the error but don't prevent user creation
-                log.error("Failed to send welcome email to admin: {}", user.getEmail(), e);
-            }
+//            try {
+//                emailService.sendWelcomeEmail(user.getEmail(), user.getFullName());
+//            } catch (Exception e) {
+//                // Log the error but don't prevent user creation
+//                log.error("Failed to send welcome email to admin: {}", user.getEmail(), e);
+//            }
         }
 
         return ResponseEntity.ok(unapprovedDoctors.size() + " doctors approved successfully.");

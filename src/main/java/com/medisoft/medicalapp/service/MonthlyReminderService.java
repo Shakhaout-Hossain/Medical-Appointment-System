@@ -32,15 +32,15 @@ public class MonthlyReminderService {
         for (User user : users) {
             String body = "Hello " + user.getFullName() + "\n" + "This is your monthly reminder!";
             emailTaskExecutor.execute(() -> {
-                try {
-                    emailService.sendReminderEmail(
-                            user.getEmail(),
-                            "Monthly Reminder",
-                            body
-                    );
-                } catch (Exception e) {
-                    log.error("Failed to send reminder email to: {}", user.getEmail(), e);
-                }
+//                try {
+//                    emailService.sendReminderEmail(
+//                            user.getEmail(),
+//                            "Monthly Reminder",
+//                            body
+//                    );
+//                } catch (Exception e) {
+//                    log.error("Failed to send reminder email to: {}", user.getEmail(), e);
+//                }
             });
         }
 
