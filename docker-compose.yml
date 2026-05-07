@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/medical_appointment_system
+      SPRING_DATASOURCE_USERNAME: mediconnect
+      SPRING_DATASOURCE_PASSWORD: mediconnect_password
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
+    # Optional: If you want to use the local profile specifically
+    # SPRING_PROFILES_ACTIVE: local
+
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: mediconnect_password
+      MYSQL_DATABASE: medical_appointment_system
+      MYSQL_USER: mediconnect
+      MYSQL_PASSWORD: mediconnect_password
+    ports:
+      - "3306:3306" # Expose MySQL port to host for external access (e.g., MySQL Workbench)
+    volumes:
+      - db_data:/var/lib/mysql
+
+volumes:
+  db_data:
