@@ -28,11 +28,15 @@ const Approvals = () => {
     }
   };
 
-  const handleApprove = async (userName: string) => {
+  const handleApprove = async (userName: string | undefined) => {
+    if (!userName) {
+      addToast('Cannot approve: Username is missing.', 'error');
+      return;
+    }
     setProcessing(userName);
     try {
       await adminService.approveDoctor(userName);
-      setUnapproved((prev) => prev.filter((d) => d.user.userName !== userName));
+      setUnapproved((prev) => prev.filter((d) => (d.user?.userName || (d.user as any)?.username) !== userName));
       addToast(`Dr. ${userName} has been approved.`, 'success');
     } catch {
       addToast('Failed to approve doctor.', 'error');
@@ -57,10 +61,11 @@ const Approvals = () => {
 
   const handleRemove = async () => {
     const { userName } = confirmState;
+    if (!userName) return;
     setProcessing(userName);
     try {
       await adminService.removeDoctor(userName);
-      setUnapproved((prev) => prev.filter((d) => d.user.userName !== userName));
+      setUnapproved((prev) => prev.filter((d) => (d.user?.userName || (d.user as any)?.username) !== userName));
       addToast(`Dr. ${userName} has been removed.`, 'info');
     } catch {
       addToast('Failed to remove doctor.', 'error');
@@ -99,93 +104,142 @@ const Approvals = () => {
       />
 
       {unapproved.length > 0 && (
-        <div className="mb-5 sm:mb-6 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-0 sm:justify-between">
-          <p className="text-sm text-slate-500">
-            <span className="font-semibold text-slate-900">{unapproved.length}</span> doctor{unapproved.length > 1 ? 's' : ''} pending review
-          </p>
+        <div className="mb-6 flex flex-col sm:flex-row sm:items-center gap-4 sm:justify-between bg-white/50 backdrop-blur-sm p-4 rounded-2xl border border-slate-100">
+          <div>
+            <h2 className="text-lg font-bold text-slate-900">Pending Reviews</h2>
+            <p className="text-sm text-slate-500">
+              There are <span className="font-semibold text-primary-600">{unapproved.length}</span> doctor registration requests awaiting your approval.
+            </p>
+          </div>
           <button
             onClick={() => setConfirmState({ open: true, userName: '', type: 'approveAll' })}
             disabled={processing === 'all'}
-            className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white transition-all disabled:opacity-50 w-full sm:w-auto"
-            style={{ background: 'linear-gradient(135deg,#22c55e,#16a34a)', boxShadow: '0 3px 10px rgba(22,163,74,0.3)' }}
+            className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-sm font-bold text-white transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:hover:scale-100 w-full sm:w-auto shadow-lg shadow-emerald-200"
+            style={{ background: 'linear-gradient(135deg,#22c55e,#16a34a)' }}
           >
-            {processing === 'all' ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
-            Approve All
+            {processing === 'all' ? <Loader2 className="w-5 h-5 animate-spin" /> : <CheckCircle className="w-5 h-5" />}
+            Approve All Doctors
           </button>
         </div>
       )}
 
       {loading ? (
-        <div className="bg-white rounded-2xl border border-slate-100 card-shadow p-14 flex items-center justify-center">
-          <Loader2 className="w-8 h-8 animate-spin text-primary-500" />
+        <div className="bg-white rounded-3xl border border-slate-100 card-shadow p-20 flex flex-col items-center justify-center gap-4">
+          <div className="relative">
+            <div className="w-12 h-12 rounded-full border-4 border-primary-100 animate-pulse"></div>
+            <Loader2 className="w-12 h-12 animate-spin text-primary-500 absolute inset-0" />
+          </div>
+          <p className="text-slate-500 font-medium animate-pulse">Fetching pending requests...</p>
         </div>
       ) : unapproved.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-slate-100 card-shadow p-14 text-center">
-          <CheckCircle className="w-12 h-12 text-emerald-400 mx-auto mb-3" />
-          <p className="text-slate-600 font-medium">No pending approvals</p>
-          <p className="text-slate-400 text-sm mt-1">All doctors have been reviewed</p>
+        <div className="bg-white rounded-3xl border border-slate-100 card-shadow p-20 text-center max-w-2xl mx-auto">
+          <div className="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-6">
+            <CheckCircle className="w-10 h-10 text-emerald-500" />
+          </div>
+          <h3 className="text-xl font-bold text-slate-900 mb-2">You're All Caught Up!</h3>
+          <p className="text-slate-500">There are no pending doctor registration requests at the moment. All applications have been processed.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
           {unapproved.map((doctor, i) => (
             <div
               key={doctor.id}
-              className="bg-white rounded-2xl border border-slate-100 card-shadow overflow-hidden animate-slide-up"
-              style={{ animationDelay: `${i * 60}ms` }}
+              className="group bg-white rounded-3xl border border-slate-100 card-shadow overflow-hidden transition-all duration-300 hover:shadow-2xl hover:shadow-slate-200/50 hover:-translate-y-1 animate-slide-up"
+              style={{ animationDelay: `${i * 80}ms` }}
             >
-              <div className="h-1 w-full bg-gradient-to-r from-amber-400 to-orange-500" />
-              <div className="p-4 sm:p-5">
-                <div className="flex items-start gap-3 sm:gap-4 mb-4">
-                  <div className="w-11 h-11 sm:w-12 sm:h-12 bg-amber-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <UserX className="w-5 h-5 sm:w-6 sm:h-6 text-amber-600" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-slate-900 truncate">Dr. {doctor.user?.fullName}</h3>
-                    <div className="flex items-center gap-2 mt-1">
-                      <Stethoscope className="w-3.5 h-3.5 text-primary-500 flex-shrink-0" />
-                      <span className="text-sm text-primary-600 font-medium truncate">{doctor.specialty}</span>
+              <div className="h-2 w-full bg-gradient-to-r from-primary-400 via-primary-500 to-indigo-500" />
+              <div className="p-6 sm:p-8">
+                <div className="flex flex-col sm:flex-row items-start gap-5 mb-6">
+                  <div className="relative">
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 bg-slate-50 rounded-2xl flex items-center justify-center flex-shrink-0 border border-slate-100 group-hover:bg-primary-50 group-hover:border-primary-100 transition-colors">
+                      <UserX className="w-8 h-8 sm:w-10 sm:h-10 text-slate-400 group-hover:text-primary-500 transition-colors" />
                     </div>
-                    <p className="text-xs text-slate-500 mt-0.5 truncate">{doctor.qualification}</p>
+                    <div className="absolute -top-2 -right-2 bg-amber-500 text-white text-[10px] font-bold px-2 py-1 rounded-lg shadow-sm border-2 border-white">
+                      NEW
+                    </div>
                   </div>
-                  <span className="badge badge-pending flex-shrink-0">Pending</span>
+                  <div className="flex-1 min-w-0 pt-1">
+                    <div className="flex flex-wrap items-center gap-3 mb-2">
+                      <h3 className="text-xl font-bold text-slate-900 truncate">Dr. {doctor.user?.fullName}</h3>
+                      <span className="px-2.5 py-1 rounded-full bg-amber-50 text-amber-600 text-[10px] font-bold uppercase tracking-wider border border-amber-100">
+                        Pending Approval
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="p-1 bg-primary-50 rounded-md text-primary-600">
+                        <Stethoscope className="w-4 h-4" />
+                      </div>
+                      <span className="text-base text-slate-700 font-semibold truncate">{doctor.specialty}</span>
+                    </div>
+                    <p className="text-sm text-slate-500 font-medium flex items-center gap-1.5 truncate">
+                      <span className="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
+                      {doctor.qualification}
+                    </p>
+                  </div>
                 </div>
 
-                {doctor.bio && (
-                  <p className="text-sm text-slate-500 mb-4 line-clamp-2 leading-relaxed">{doctor.bio}</p>
-                )}
+                <div className="space-y-4 mb-8">
+                  {doctor.bio && (
+                    <div className="bg-slate-50/50 rounded-2xl p-4 border border-slate-100/50">
+                      <p className="text-sm text-slate-600 leading-relaxed italic line-clamp-3">
+                        "{doctor.bio}"
+                      </p>
+                    </div>
+                  )}
 
-                <div className="grid grid-cols-2 gap-2 sm:gap-3 mb-4 text-xs text-slate-500">
-                  <div className="flex items-center gap-1.5">
-                    <Clock className="w-3.5 h-3.5 flex-shrink-0" />
-                    <span className="truncate">{doctor.availableFrom} – {doctor.availableTo}</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <Calendar className="w-3.5 h-3.5 flex-shrink-0" />
-                    <span className="truncate">{doctor.workingDays?.map(formatDay).join(', ')}</span>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="flex items-center gap-3 text-sm text-slate-600 bg-white border border-slate-100 p-3 rounded-xl shadow-sm">
+                      <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-500">
+                        <Clock className="w-4 h-4" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">Hours</p>
+                        <p className="font-semibold truncate">{doctor.availableFrom} – {doctor.availableTo}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 text-sm text-slate-600 bg-white border border-slate-100 p-3 rounded-xl shadow-sm">
+                      <div className="w-8 h-8 rounded-lg bg-rose-50 flex items-center justify-center text-rose-500">
+                        <Calendar className="w-4 h-4" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">Schedule</p>
+                        <p className="font-semibold truncate">{doctor.workingDays?.map(formatDay).join(', ')}</p>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
-                <div className="bg-slate-50 rounded-lg px-3 py-2 mb-4 text-xs text-slate-500 space-y-1">
-                  <div><span className="font-medium text-slate-700">Username:</span> {doctor.user?.userName}</div>
-                  <div className="truncate"><span className="font-medium text-slate-700">Email:</span> {doctor.user?.email}</div>
+                <div className="bg-slate-900 rounded-2xl p-5 mb-8 text-sm relative overflow-hidden group/info">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-primary-500/10 rounded-full blur-3xl -mr-16 -mt-16 group-hover/info:bg-primary-500/20 transition-colors"></div>
+                  <div className="relative z-10 space-y-3">
+                    <div className="flex justify-between items-center pb-2 border-b border-slate-800">
+                      <span className="text-slate-400 font-medium">Username</span>
+                      <span className="text-white font-mono bg-slate-800 px-2 py-0.5 rounded text-xs">{doctor.user?.userName || (doctor.user as any)?.username}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-slate-400 font-medium">Email Address</span>
+                      <span className="text-white font-medium truncate ml-4">{doctor.user?.email}</span>
+                    </div>
+                  </div>
                 </div>
 
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-3">
                   <button
-                    onClick={() => handleApprove(doctor.user.userName)}
-                    disabled={processing === doctor.user.userName}
-                    className="flex-1 py-2.5 rounded-xl font-semibold text-sm text-white flex items-center justify-center gap-2 transition-all disabled:opacity-50"
-                    style={{ background: 'linear-gradient(135deg,#22c55e,#16a34a)', boxShadow: '0 2px 8px rgba(22,163,74,0.25)' }}
+                    onClick={() => handleApprove(doctor.user?.userName || (doctor.user as any)?.username)}
+                    disabled={processing === (doctor.user?.userName || (doctor.user as any)?.username)}
+                    className="flex-1 py-3.5 rounded-2xl font-bold text-sm text-white flex items-center justify-center gap-2 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 shadow-lg shadow-emerald-100 hover:shadow-emerald-200"
+                    style={{ background: 'linear-gradient(135deg,#22c55e,#16a34a)' }}
                   >
-                    {processing === doctor.user.userName ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
-                    Approve
+                    {processing === (doctor.user?.userName || (doctor.user as any)?.username) ? <Loader2 className="w-5 h-5 animate-spin" /> : <CheckCircle className="w-5 h-5" />}
+                    Confirm Approval
                   </button>
                   <button
-                    onClick={() => setConfirmState({ open: true, userName: doctor.user.userName, type: 'remove' })}
-                    disabled={processing === doctor.user.userName}
-                    className="px-3 sm:px-3.5 py-2.5 border border-danger-200 text-danger-600 rounded-xl hover:bg-danger-50 transition-colors disabled:opacity-50"
+                    onClick={() => setConfirmState({ open: true, userName: doctor.user?.userName || (doctor.user as any)?.username, type: 'remove' })}
+                    disabled={processing === (doctor.user?.userName || (doctor.user as any)?.username)}
+                    className="px-6 py-3.5 border-2 border-rose-100 text-rose-600 rounded-2xl hover:bg-rose-50 hover:border-rose-200 transition-all font-bold text-sm flex items-center justify-center gap-2 active:scale-[0.98]"
                   >
-                    <Trash2 className="w-4 h-4" />
+                    <Trash2 className="w-5 h-5" />
+                    Reject
                   </button>
                 </div>
               </div>

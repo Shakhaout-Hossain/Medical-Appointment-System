@@ -54,6 +54,7 @@ public  class User implements UserDetails {
     }
 
     @Override
+    @com.fasterxml.jackson.annotation.JsonProperty("userName")
     public String getUsername() {
         return userName;
     }

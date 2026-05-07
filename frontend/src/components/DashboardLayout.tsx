@@ -26,21 +26,28 @@ const DashboardLayout = ({ children, title }: DashboardLayoutProps) => {
   const { user, logout, role } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth >= 1024);
 
-  // Close sidebar on route change (mobile)
+  // Update sidebar state on initial load and handle resize specifically for mobile/desktop transitions
   useEffect(() => {
-    setSidebarOpen(false);
-  }, [location.pathname]);
-
-  // Close sidebar on resize to desktop
-  useEffect(() => {
-    const onResize = () => {
-      if (window.innerWidth >= 1024) setSidebarOpen(false);
+    const handleResize = () => {
+      if (window.innerWidth < 1024) {
+        setSidebarOpen(false);
+      } else {
+        setSidebarOpen(true);
+      }
     };
-    window.addEventListener('resize', onResize);
-    return () => window.removeEventListener('resize', onResize);
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  // Close sidebar on route change (only on mobile)
+  useEffect(() => {
+    if (window.innerWidth < 1024) {
+      setSidebarOpen(false);
+    }
+  }, [location.pathname]);
 
   const handleLogout = () => {
     logout();
@@ -103,7 +110,7 @@ const DashboardLayout = ({ children, title }: DashboardLayoutProps) => {
 
       {/* ── Sidebar ────────────────────────────────────────── */}
       <aside
-        className={`fixed top-0 left-0 z-50 h-full w-64 transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${
+        className={`fixed top-0 left-0 z-50 h-full w-60 transform transition-transform duration-300 ease-in-out ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
         style={{
@@ -121,7 +128,7 @@ const DashboardLayout = ({ children, title }: DashboardLayoutProps) => {
               <p className="text-xs text-slate-400 capitalize">{role?.toLowerCase()} Portal</p>
             </div>
             <button
-              className="ml-auto lg:hidden text-slate-400 hover:text-white p-1 rounded-lg hover:bg-white/10 transition-colors flex-shrink-0"
+              className="ml-auto text-slate-400 hover:text-white p-1 rounded-lg hover:bg-white/10 transition-colors flex-shrink-0"
               onClick={() => setSidebarOpen(false)}
               aria-label="Close sidebar"
             >
@@ -172,16 +179,19 @@ const DashboardLayout = ({ children, title }: DashboardLayoutProps) => {
         </div>
       </aside>
 
+      {/* Spacer for sidebar on desktop to prevent content overlap */}
+      {sidebarOpen && <div className="hidden lg:block w-60 flex-shrink-0 transition-all duration-300 ease-in-out" aria-hidden="true" />}
+
       {/* ── Main content ────────────────────────────────────── */}
-      <div className="flex-1 flex flex-col min-w-0 lg:ml-64 min-h-screen">
+      <div className="flex-1 flex flex-col min-w-0 min-h-screen relative">
         {/* Top bar */}
         <header className="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-slate-100 shadow-sm">
-          <div className="flex items-center justify-between px-4 py-3 sm:px-6 lg:px-7">
+          <div className="flex items-center justify-between px-4 py-3 sm:px-8 lg:px-10">
             <div className="flex items-center gap-3 min-w-0">
               <button
-                className="lg:hidden p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition-colors flex-shrink-0"
-                onClick={() => setSidebarOpen(true)}
-                aria-label="Open sidebar"
+                className="p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition-colors flex-shrink-0"
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+                aria-label={sidebarOpen ? "Close sidebar" : "Open sidebar"}
               >
                 <Menu className="w-5 h-5" />
               </button>
@@ -212,7 +222,7 @@ const DashboardLayout = ({ children, title }: DashboardLayoutProps) => {
         </header>
 
         {/* Page content */}
-        <main className="flex-1 p-4 sm:p-5 lg:p-7 animate-fade-in min-w-0">
+        <main className="flex-1 p-4 sm:p-8 lg:px-10 lg:py-8 animate-fade-in min-w-0">
           {children}
         </main>
       </div>

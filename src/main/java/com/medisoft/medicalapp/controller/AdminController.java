@@ -47,11 +47,11 @@ public class AdminController {
 
 
     /// Approve Doctor By userName
-    @PutMapping("/approve-doctor/{userName}")
+    @PutMapping("/approve-doctor/{userName:.+}")
     @Transactional
     public ResponseEntity<String> approveDoctor(@PathVariable String userName) {
         DoctorProfile doctorProfile = doctorProfileRepository.findByUser_UserName(userName)
-                .orElseThrow(() -> new UsernameNotFoundException("Doctor profile not found for userName: " + userName));
+                .orElseThrow(() -> new UserNotFoundException("Doctor profile not found for userName: " + userName));
 
         if (doctorProfile.isApproved()) {
             return ResponseEntity.ok("Doctor already approved.");
@@ -93,7 +93,7 @@ public class AdminController {
                 userRepository.save(user);
             }
             else {
-                throw new UsernameNotFoundException("User Not Available");
+                throw new UserNotFoundException("User Not Available");
             }
 
             doctorProfileRepository.save(doctor);
@@ -110,7 +110,7 @@ public class AdminController {
     }
 
 
-    @DeleteMapping("/remove-doctor/{userName}")
+    @DeleteMapping("/remove-doctor/{userName:.+}")
     @Transactional
     public ResponseEntity<String> removeDoctor(@PathVariable String userName) {
         DoctorProfile doctorProfile = doctorProfileRepository.findByUser_UserName(userName)
@@ -122,7 +122,7 @@ public class AdminController {
         return ResponseEntity.ok("Doctor removed successfully.");
     }
 
-    @DeleteMapping("/remove-patient/{userName}")
+    @DeleteMapping("/remove-patient/{userName:.+}")
     @Transactional
     public ResponseEntity<String> removePatient(@PathVariable String userName) {
         var patientProfile = patientProfileRepository.findByUser_UserName(userName)
