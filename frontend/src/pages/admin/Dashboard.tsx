@@ -202,6 +202,7 @@ const AdminDashboard = () => {
                     </div>
                     <Link
                       to="/dashboard/approvals"
+                      state={{ selectedDoctorUserName: doctor.user?.userName || (doctor.user as any)?.username }}
                       className="w-8 h-8 flex items-center justify-center bg-slate-100 text-slate-400 rounded-xl hover:bg-primary-600 hover:text-white transition-all"
                     >
                       <ArrowRight className="w-4 h-4" />

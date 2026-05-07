@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { CheckCircle, XCircle, AlertCircle, X } from 'lucide-react';
 
 export type ToastVariant = 'success' | 'error' | 'info';
@@ -83,13 +84,14 @@ const ToastItem = ({ toast, onRemove }: { toast: ToastMessage; onRemove: (id: st
 
 export const Toast = ({ toasts, onRemove }: ToastProps) => {
   if (toasts.length === 0) return null;
-  return (
+  return createPortal(
     /* Safe inset on all sides — works on notched phones */
     <div className="fixed top-4 right-4 z-[9999] flex flex-col gap-2.5 max-w-[calc(100vw-2rem)]">
       {toasts.map((t) => (
         <ToastItem key={t.id} toast={t} onRemove={onRemove} />
       ))}
-    </div>
+    </div>,
+    document.body
   );
 };
 

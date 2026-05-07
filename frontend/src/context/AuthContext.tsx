@@ -9,12 +9,14 @@ interface AuthContextType {
   logout: () => void;
   isAuthenticated: boolean;
   role: Role | null;
+  isLoading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
@@ -24,6 +26,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setUser(parsedUser);
       setAuthHeader(parsedUser.userName, storedPassword);
     }
+    setIsLoading(false);
   }, []);
 
   const login = async (userName: string, password: string) => {
@@ -46,7 +49,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, isAuthenticated: !!user, role: user?.role ?? null }}>
+    <AuthContext.Provider value={{ user, login, register, logout, isAuthenticated: !!user, role: user?.role ?? null, isLoading }}>
       {children}
     </AuthContext.Provider>
   );
