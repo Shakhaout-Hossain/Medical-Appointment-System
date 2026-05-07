@@ -16,8 +16,14 @@ public interface DoctorProfileRepository extends JpaRepository<DoctorProfile, Lo
     boolean existsByUserUserName(String userName);
 
 
+    @org.springframework.data.jpa.repository.EntityGraph(attributePaths = {"user", "workingDays"})
     List<DoctorProfile> findByApproved(boolean approved);
-    Page<DoctorProfile> findByApprovedTrue(Pageable pageable);
+
+    @org.springframework.data.jpa.repository.EntityGraph(attributePaths = {"user", "workingDays"})
+    org.springframework.data.domain.Page<DoctorProfile> findAll(org.springframework.data.domain.Pageable pageable);
+
+    @org.springframework.data.jpa.repository.EntityGraph(attributePaths = {"user", "workingDays"})
+    org.springframework.data.domain.Page<DoctorProfile> findByApprovedTrue(org.springframework.data.domain.Pageable pageable);
 
     Optional<DoctorProfile> findByIdAndApprovedTrue(Long id);
 

@@ -1,5 +1,5 @@
 # Variables
-DOCKER_COMPOSE = docker-compose
+DOCKER_COMPOSE = docker compose
 PROJECT_NAME = medical-appointment-system
 
 .PHONY: all help build up down restart logs ps clean
@@ -52,3 +52,36 @@ ps:
 clean:
 	@echo "Cleaning up Docker resources..."
 	$(DOCKER_COMPOSE) down --rmi all --volumes --remove-orphans
+
+# --- Development Targets (Local) ---
+
+.PHONY: watch-frontend watch-backend watch install-all
+
+# Run frontend in watch mode
+watch-frontend:
+	@echo "Starting Frontend in watch mode..."
+	cd frontend && npm install && npm run dev
+
+# Run backend in watch mode (requires Maven)
+watch-backend:
+	@echo "Starting Backend in watch mode..."
+	mvn spring-boot:run
+
+# Run both frontend and backend concurrently
+watch:
+	@$(MAKE) -j2 watch-frontend watch-backend
+
+# Run in Docker with watch mode (using volume mounts)
+docker-watch:
+	@echo "Stopping existing containers..."
+	$(DOCKER_COMPOSE) -f docker-compose.watch.yml down
+	@echo "Ensuring fresh official images..."
+	$(DOCKER_COMPOSE) -f docker-compose.watch.yml pull
+	@echo "Starting services in Docker with watch mode..."
+	$(DOCKER_COMPOSE) -f docker-compose.watch.yml up
+
+# Install all dependencies
+install-all:
+	@echo "Installing all dependencies..."
+	mvn install -DskipTests
+	cd frontend && npm install

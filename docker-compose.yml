@@ -2,7 +2,8 @@ version: '3.8'
 
 services:
   app:
-    build: .
+    build:
+      context: .
     ports:
       - "8080:8080"
     depends_on:
@@ -15,7 +16,8 @@ services:
       SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
 
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
     ports:
       - "3000:80"
     depends_on:

@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { useState, useEffect, type ReactNode } from 'react';
 import { useAuth } from '../context/AuthContext';
 import {
   LayoutDashboard,
@@ -8,12 +8,14 @@ import {
   LogOut,
   Menu,
   X,
-  Activity,
   Stethoscope,
   UserCog,
   FileText,
+  Bell,
+  ChevronRight,
+  Activity,
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -23,7 +25,22 @@ interface DashboardLayoutProps {
 const DashboardLayout = ({ children, title }: DashboardLayoutProps) => {
   const { user, logout, role } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Close sidebar on route change (mobile)
+  useEffect(() => {
+    setSidebarOpen(false);
+  }, [location.pathname]);
+
+  // Close sidebar on resize to desktop
+  useEffect(() => {
+    const onResize = () => {
+      if (window.innerWidth >= 1024) setSidebarOpen(false);
+    };
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
 
   const handleLogout = () => {
     logout();
@@ -58,106 +75,144 @@ const DashboardLayout = ({ children, title }: DashboardLayoutProps) => {
   };
 
   const menuItems = getMenuItems();
+  const initials = user?.fullName?.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() || '?';
+
+  const roleColors: Record<string, string> = {
+    PATIENT: 'from-violet-500 to-purple-600',
+    DOCTOR: 'from-sky-500 to-cyan-600',
+    ADMIN: 'from-rose-500 to-pink-600',
+  };
+  const roleGrad = role ? roleColors[role] ?? 'from-violet-500 to-purple-600' : 'from-violet-500 to-purple-600';
+
+  const isActive = (path: string) => {
+    if (path === '/dashboard') {
+      return location.pathname === '/dashboard' || location.pathname === '/dashboard/';
+    }
+    return location.pathname.startsWith(path);
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Mobile sidebar overlay */}
+    <div className="min-h-screen bg-slate-50 flex overflow-x-hidden">
+      {/* Mobile overlay */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-gray-900/50 z-40 lg:hidden"
+          className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-40 lg:hidden animate-fade-in"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
-      {/* Sidebar */}
+      {/* ── Sidebar ────────────────────────────────────────── */}
       <aside
-        className={`fixed top-0 left-0 z-50 h-full w-64 bg-white border-r border-gray-200 transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${
+        className={`fixed top-0 left-0 z-50 h-full w-64 transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
+        style={{
+          background: 'linear-gradient(160deg, #0f172a 0%, #1e1b4b 60%, #0f172a 100%)',
+        }}
       >
         <div className="flex flex-col h-full">
           {/* Logo */}
-          <div className="flex items-center gap-3 px-6 py-5 border-b border-gray-200">
-            <div className="flex items-center justify-center w-10 h-10 bg-primary-600 rounded-xl">
-              <Activity className="w-6 h-6 text-white" />
+          <div className="flex items-center gap-3 px-5 py-5 border-b border-white/10">
+            <div className={`flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br ${roleGrad} shadow-lg flex-shrink-0`}>
+              <Activity className="w-5 h-5 text-white" />
             </div>
-            <div>
-              <h1 className="text-lg font-bold text-gray-900">MediCare</h1>
-              <p className="text-xs text-gray-500 capitalize">{role?.toLowerCase()} Portal</p>
+            <div className="flex-1 min-w-0">
+              <h1 className="text-base font-bold text-white tracking-tight">MediConnect</h1>
+              <p className="text-xs text-slate-400 capitalize">{role?.toLowerCase()} Portal</p>
             </div>
             <button
-              className="ml-auto lg:hidden"
+              className="ml-auto lg:hidden text-slate-400 hover:text-white p-1 rounded-lg hover:bg-white/10 transition-colors flex-shrink-0"
               onClick={() => setSidebarOpen(false)}
+              aria-label="Close sidebar"
             >
-              <X className="w-5 h-5 text-gray-500" />
+              <X className="w-5 h-5" />
             </button>
           </div>
 
-          {/* Navigation */}
-          <nav className="flex-1 px-4 py-6 overflow-y-auto">
-            <ul className="space-y-1">
-              {menuItems.map((item) => (
-                <li key={item.path}>
-                  <a
-                    href={item.path}
-                    className="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-xl hover:bg-gray-100 hover:text-gray-900 transition-colors"
-                  >
-                    <item.icon className="w-5 h-5" />
-                    <span className="font-medium">{item.label}</span>
-                  </a>
-                </li>
-              ))}
-            </ul>
+          {/* Nav */}
+          <nav className="flex-1 px-3 py-5 overflow-y-auto space-y-1">
+            {menuItems.map((item, i) => {
+              const active = isActive(item.path);
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={`nav-item ${active ? 'active' : ''}`}
+                  style={{ animationDelay: `${i * 60}ms` }}
+                >
+                  <item.icon className="w-[18px] h-[18px] flex-shrink-0" />
+                  <span className="truncate">{item.label}</span>
+                  {active && <ChevronRight className="w-4 h-4 ml-auto opacity-60 flex-shrink-0" />}
+                </Link>
+              );
+            })}
           </nav>
 
-          {/* User section */}
-          <div className="px-4 py-4 border-t border-gray-200">
-            <div className="flex items-center gap-3 px-4 py-3 mb-2">
-              <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
-                <span className="text-primary-700 font-semibold text-sm">
-                  {user?.fullName?.charAt(0)?.toUpperCase()}
-                </span>
+          {/* User */}
+          <div className="p-3 border-t border-white/10">
+            <div className="flex items-center gap-3 px-3 py-3 mb-1 rounded-xl">
+              <div
+                className={`w-9 h-9 rounded-xl bg-gradient-to-br ${roleGrad} flex items-center justify-center flex-shrink-0 shadow`}
+              >
+                <span className="text-white font-bold text-xs">{initials}</span>
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-900 truncate">{user?.fullName}</p>
-                <p className="text-xs text-gray-500 truncate">{user?.email}</p>
+                <p className="text-sm font-semibold text-white truncate">{user?.fullName}</p>
+                <p className="text-xs text-slate-400 truncate">{user?.email}</p>
               </div>
             </div>
             <button
               onClick={handleLogout}
-              className="flex items-center gap-3 w-full px-4 py-3 text-gray-600 rounded-xl hover:bg-danger-50 hover:text-danger-600 transition-colors"
+              className="nav-item w-full hover:!bg-red-500/20 hover:!text-red-400 transition-colors"
             >
-              <LogOut className="w-5 h-5" />
-              <span className="font-medium">Logout</span>
+              <LogOut className="w-[18px] h-[18px] flex-shrink-0" />
+              <span>Sign Out</span>
             </button>
           </div>
         </div>
       </aside>
 
-      {/* Main content */}
-      <div className="lg:ml-64">
+      {/* ── Main content ────────────────────────────────────── */}
+      <div className="flex-1 flex flex-col min-w-0 lg:ml-64 min-h-screen">
         {/* Top bar */}
-        <header className="sticky top-0 z-30 bg-white border-b border-gray-200">
-          <div className="flex items-center justify-between px-4 py-4 lg:px-8">
-            <div className="flex items-center gap-4">
+        <header className="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-slate-100 shadow-sm">
+          <div className="flex items-center justify-between px-4 py-3 sm:px-6 lg:px-7">
+            <div className="flex items-center gap-3 min-w-0">
               <button
-                className="lg:hidden"
+                className="lg:hidden p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition-colors flex-shrink-0"
                 onClick={() => setSidebarOpen(true)}
+                aria-label="Open sidebar"
               >
-                <Menu className="w-6 h-6 text-gray-600" />
+                <Menu className="w-5 h-5" />
               </button>
-              <h2 className="text-xl font-semibold text-gray-900">{title}</h2>
+              <div className="min-w-0">
+                <h2 className="text-base sm:text-lg font-semibold text-slate-900 leading-tight truncate">{title}</h2>
+                <p className="text-xs text-slate-400 hidden sm:block">
+                  Welcome back,{' '}
+                  <span className="font-medium text-primary-600">{user?.fullName?.split(' ')[0]}</span>
+                </p>
+              </div>
             </div>
-            <div className="flex items-center gap-4">
-              <span className="text-sm text-gray-500 hidden sm:block">
-                Welcome, {user?.fullName}
-              </span>
+
+            <div className="flex items-center gap-2 flex-shrink-0">
+              {/* Notification bell */}
+              <button className="relative p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition-colors">
+                <Bell className="w-5 h-5" />
+                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-primary-500 rounded-full ring-2 ring-white" />
+              </button>
+
+              {/* Avatar */}
+              <div
+                className={`w-9 h-9 rounded-xl bg-gradient-to-br ${roleGrad} flex items-center justify-center shadow-sm cursor-default flex-shrink-0`}
+              >
+                <span className="text-white font-bold text-xs">{initials}</span>
+              </div>
             </div>
           </div>
         </header>
 
         {/* Page content */}
-        <main className="p-4 lg:p-8">
+        <main className="flex-1 p-4 sm:p-5 lg:p-7 animate-fade-in min-w-0">
           {children}
         </main>
       </div>
