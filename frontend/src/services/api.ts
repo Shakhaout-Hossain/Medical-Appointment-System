@@ -87,6 +87,12 @@ export const doctorService = {
     });
     return response.data;
   },
+  getPrescriptions: async (page = 0, size = 10): Promise<PaginatedResponse<Prescription>> => {
+    const response = await api.get<PaginatedResponse<Prescription>>('/doctor/prescriptions', {
+      params: { page, size },
+    });
+    return response.data;
+  },
   createPrescription: async (patientId: number, data: PrescriptionRequest): Promise<Prescription> => {
     const response = await api.post<Prescription>(`/doctor/patients/${patientId}/prescription`, data);
     return response.data;

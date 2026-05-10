@@ -54,9 +54,6 @@ public class DoctorController {
                 LocalDateTime.now(),
                 pageable
         );
-        if(appointmentPage.isEmpty()){
-            throw new UserNotFoundException("No upcoming appointments found.");
-        }
 
         Map<String, Object> response = new HashMap<>();
         response.put("appointments", appointmentPage.getContent());
@@ -84,9 +81,6 @@ public class DoctorController {
                 LocalDateTime.now(),
                 pageable
         );
-        if(appointmentPage.isEmpty()){
-            throw new UserNotFoundException("No previous appointments found.");
-        }
 
         Map<String, Object> response = new HashMap<>();
         response.put("appointments", appointmentPage.getContent());
@@ -113,6 +107,25 @@ public class DoctorController {
         // Create the prescription using the service
         Prescription prescription = prescriptionService.createPrescriptionForPatient(patientId, dto, doctorUserName, pageable);
         return ResponseEntity.ok(prescription);
+    }
+
+    @GetMapping("/prescriptions")
+    public ResponseEntity<?> getPrescriptions(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        String userName = userDetails.getUsername();
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Prescription> prescriptionPage = prescriptionService.getDoctorPrescriptions(userName, pageable);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("prescriptions", prescriptionPage.getContent());
+        response.put("currentPage", prescriptionPage.getNumber() + 1);
+        response.put("totalItems", prescriptionPage.getTotalElements());
+        response.put("totalPages", prescriptionPage.getTotalPages());
+
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping

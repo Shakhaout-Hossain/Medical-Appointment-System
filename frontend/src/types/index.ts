@@ -35,22 +35,20 @@ export interface PatientProfile {
 
 export interface Appointment {
   id: number;
-  patientUserUserName: string;
+  patient: PatientProfile;
   doctor: DoctorProfile;
   appointmentTime: string;
   notes: string;
   status: AppointmentStatus;
   paymentStatus: PaymentStatus;
-  createdAt: string;
 }
 
 export interface Prescription {
   id: number;
-  patient: PatientProfile;
-  doctor: DoctorProfile;
+  appointment: Appointment;
+  diagnosis: string;
   medications: string;
-  notes: string;
-  createdAt: string;
+  advice: string;
 }
 
 export interface LoginRequest {
@@ -83,14 +81,16 @@ export interface AppointmentRequest {
 }
 
 export interface PrescriptionRequest {
+  diagnosis: string;
   medications: string;
-  notes: string;
+  advice: string;
 }
 
 export interface PaginatedResponse<T> {
   appointments?: T[];
   doctors?: T[];
   patients?: T[];
+  prescriptions?: T[];
   currentPage: number;
   totalItems: number;
   totalPages: number;

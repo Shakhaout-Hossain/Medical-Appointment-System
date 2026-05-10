@@ -22,6 +22,39 @@ const getSpecialtyGrad = (s?: string) => {
 
 const formatDay = (day: string) => day.charAt(0) + day.slice(1).toLowerCase();
 
+const generateTimeSlots = (start?: string, end?: string) => {
+  if (!start || !end) return [];
+  const slots = [];
+  try {
+    const [startH, startM] = start.split(':').map(Number);
+    const [endH, endM] = end.split(':').map(Number);
+    
+    let currentMinutes = startH * 60 + startM;
+    // Round up to nearest 15
+    if (currentMinutes % 15 !== 0) {
+      currentMinutes += (15 - (currentMinutes % 15));
+    }
+    const endMinutes = endH * 60 + endM;
+    
+    while (currentMinutes <= endMinutes) {
+      const h = Math.floor(currentMinutes / 60);
+      const m = currentMinutes % 60;
+      const timeString = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
+      
+      // Format for display (AM/PM)
+      const displayH = h % 12 || 12;
+      const ampm = h >= 12 ? 'PM' : 'AM';
+      const displayString = `${displayH}:${m.toString().padStart(2, '0')} ${ampm}`;
+      
+      slots.push({ value: timeString, label: displayString });
+      currentMinutes += 15;
+    }
+  } catch (e) {
+    return [];
+  }
+  return slots;
+};
+
 const FindDoctors = () => {
   const [doctors, setDoctors] = useState<DoctorProfile[]>([]);
   const [loading, setLoading] = useState(true);
@@ -203,13 +236,22 @@ const FindDoctors = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1.5">Time</label>
-                <input
-                  type="time"
-                  value={appointmentTime}
-                  onChange={(e) => setAppointmentTime(e.target.value)}
-                  className="input-field"
-                  required
-                />
+                <div className="relative">
+                  <select
+                    value={appointmentTime}
+                    onChange={(e) => setAppointmentTime(e.target.value)}
+                    className="input-field appearance-none cursor-pointer pr-10"
+                    required
+                  >
+                    <option value="">Select a time</option>
+                    {generateTimeSlots(selectedDoctor.availableFrom, selectedDoctor.availableTo).map((slot) => (
+                      <option key={slot.value} value={slot.value}>
+                        {slot.label}
+                      </option>
+                    ))}
+                  </select>
+                  <Clock className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                </div>
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1.5">

@@ -73,7 +73,11 @@ public class PrescriptionServiceImpl implements PrescriptionService{
         ///  Set Appointment Status Confirmed to Completed
         latestAppointment.setStatus(AppointmentStatus.COMPLETED);
         appointmentRepository.save(latestAppointment);
-
         return prescriptionRepository.save(prescription);
+    }
+
+    @Override
+    public Page<Prescription> getDoctorPrescriptions(String doctorUserName, Pageable pageable) {
+        return prescriptionRepository.findByAppointment_Doctor_User_UserName(doctorUserName, pageable);
     }
 }

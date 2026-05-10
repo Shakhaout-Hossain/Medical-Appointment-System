@@ -65,9 +65,6 @@ public class PatientController {
 
         Page<DoctorProfile> doctorProfilePage = doctorProfileRepository.findByApprovedTrue(pageable);
 //        List<DoctorProfile> doctorProfiles = doctorProfileRepository.findAll();
-        if (doctorProfilePage.isEmpty()) {
-            throw new  UserNotFoundException("No doctors found");
-        }
 
         Map<String, Object> response = new HashMap<>();
         response.put("doctors", doctorProfilePage.getContent());
@@ -108,9 +105,6 @@ public class PatientController {
                 pageable
         );
 
-        if (appointmentPage.isEmpty()) {
-            throw new UserNotFoundException("No appointments found.");
-        }
 
         Map<String, Object> response = new HashMap<>();
         response.put("appointments", appointmentPage.getContent());
@@ -137,9 +131,6 @@ public class PatientController {
                 LocalDateTime.now(),
                 pageable
         );
-        if(appointmentPage.isEmpty()){
-            throw new UserNotFoundException("No upcoming appointments found.");
-        }
 
         Map<String, Object> response = new HashMap<>();
         response.put("appointments", appointmentPage.getContent());
@@ -166,9 +157,6 @@ public class PatientController {
                 pageable
         );
 
-        if(appointmentPage.isEmpty()){
-            throw new UserNotFoundException("No previous appointments found.");
-        }
 
         Map<String, Object> response = new HashMap<>();
         response.put("appointments", appointmentPage.getContent());
@@ -196,9 +184,6 @@ public class PatientController {
                 pageable
         );
 
-        if(appointmentPage.isEmpty()){
-            throw new UserNotFoundException("No appointments found with doctor id: " + doctorId);
-        }
 
         Map<String, Object> response = new HashMap<>();
         response.put("appointments", appointmentPage.getContent());

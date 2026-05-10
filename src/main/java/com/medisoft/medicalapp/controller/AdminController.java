@@ -140,9 +140,6 @@ public class AdminController {
                                            @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<DoctorProfile> doctorPage = doctorProfileRepository.findAll(pageable);
-        if (doctorPage.isEmpty()) {
-            throw new  UserNotFoundException("No doctors found");
-        }
 
         Map<String, Object> response = new HashMap<>();
         response.put("doctors", doctorPage.getContent());
@@ -159,10 +156,7 @@ public class AdminController {
                                             @RequestParam(defaultValue = "100") int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<PatientProfile> patientProfilesPage = patientProfileRepository.findAll(pageable);
-        if (patientProfilesPage.isEmpty()) {
 
-            throw new UserNotFoundException("No patients found");
-        }
         Map<String, Object> response = new HashMap<>();
         response.put("patients", patientProfilesPage.getContent());
         response.put("currentPage", patientProfilesPage.getNumber()+1);
